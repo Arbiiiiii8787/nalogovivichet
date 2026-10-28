@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка документов для налогового вычета</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f5f7fa;
+            margin: 0;
+            padding: 24px 16px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 960px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            padding: 28px 32px 32px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .subhead {
+            color: #475569;
+            margin-bottom: 28px;
+            border-left: 4px solid #3b82f6;
+            padding-left: 16px;
+            font-size: 15px;
+            line-height: 1.5;
+            background: #f8fafc;
+            border-radius: 0 12px 12px 0;
+            padding: 12px 16px;
+        }
+        .subhead i {
+            font-style: normal;
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-left: 6px;
+        }
+        .section {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            transition: 0.15s;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 650;
+            color: #0f172a;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #eef2f6;
+            padding-bottom: 12px;
+        }
+        .section-title span {
+            background: #3b82f6;
+            color: white;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 10px 12px;
+            background: #f9fbfd;
+            border-radius: 12px;
+            border-left: 4px solid #cbd5e1;
+            transition: 0.1s;
+        }
+        .check-item.required {
+            border-left-color: #3b82f6;
+        }
+        .check-item.optional {
+            border-left-color: #94a3b8;
+        }
+        .check-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            accent-color: #2563eb;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .check-item label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 15px;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+        .check-item .note {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+            display: block;
+        }
+        .badge {
+            font-size: 12px;
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 20px;
+            color: #334155;
+            font-weight: 500;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+        .badge.required {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .badge.optional {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.15s;
+            background: #f1f5f9;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: 1px solid #2563eb;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        .btn:hover {
+            background: #e2e8f0;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        .result-box {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 20px 24px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+        }
+        .result-title {
+            font-weight: 650;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        .result-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #1e293b;
+        }
+        .result-content ul {
+            margin: 8px 0 4px;
+            padding-left: 22px;
+        }
+        .result-content li {
+            margin-bottom: 6px;
+        }
+        .success-text { color: #15803d; font-weight: 600; }
+        .warn-text { color: #b45309; font-weight: 600; }
+        .error-text { color: #b91c1c; font-weight: 600; }
+        .instruction {
+            background: #f0f9ff;
+            border-radius: 18px;
+            padding: 20px 24px;
+            border: 1px solid #bae6fd;
+            margin-bottom: 20px;
+        }
+        .instruction h3 {
+            margin-top: 0;
+            margin-bottom: 14px;
+            font-size: 18px;
+            color: #0369a1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .instruction ul {
+            margin: 0;
+            padding-left: 22px;
+        }
+        .instruction li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+            color: #0c4a6e;
+        }
+        .footnote {
+            font-size: 13px;
+            color: #64748b;
+            text-align: center;
+            margin-top: 24px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .highlight-missing {
+            background: #fef2f2 !important;
+            border-left-color: #ef4444 !important;
+        }
+        .highlight-ok {
+            background: #f0fdf4 !important;
+            border-left-color: #22c55e !important;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 640px) {
+            .container { padding: 18px; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🧾 Проверка документов для налогового вычета</h1>
+    <div class="subhead">
+        Отметьте галочками всё, что у вас уже есть на руках. Кнопка «Проверить» покажет, каких документов не хватает.
+        <i>работает офлайн</i>
+    </div>
+
+    <!-- Лечение зубов -->
+    <div class="section">
+        <div class="section-title"><span>1</span> Вычет за лечение зубов</div>
+        <div class="checklist" id="medicalChecklist">
+            <div class="check-item required">
+                <input type="checkbox" id="med1" data-group="medical" data-required="true">
+                <label for="med1">Справка об оплате медицинских услуг из клиники <span class="badge required">обязательно</span>
+                    <span class="note">С 2024 года это главный документ. В справке должен быть указан код лечения: «1» — обычное, «2» — дорогостоящее (например, имплантация).</span>
+                </label>
+            </div>
+            <div class="check-item optional">
+                <input type="checkbox" id="med2" data-group="medical" data-required="false">
+                <label for="med2">Договор с клиникой (копия) <span class="badge optional">желательно</span>
+                    <span class="note">Может понадобиться для подтверждения, если в справке не всё очевидно. Часто не требуется, но пусть будет.</span>
+                </label>
+            </div>
+            <div class="check-item optional">
+                <input type="checkbox" id="med3" data-group="medical" data-required="false">
+                <label for="med3">Кассовые чеки / квитанции об оплате <span class="badge optional">желательно</span>
+                    <span class="note">Справка их обычно заменяет, но для собственного спокойствия можно сохранить.</span>
+                </label>
+            </div>
+            <div class="check-item optional">
+                <input type="checkbox" id="med4" data-group="medical" data-required="false">
+                <label for="med4">Документы о родстве (если платили за супруга/родителей/детей) <span class="badge optional">если нужно</span>
+                    <span class="note">Свидетельство о браке, о рождении и т.п. — только если вычет оформляется за члена семьи.</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Покупка квартиры -->
+    <div class="section">
+        <div class="section-title"><span>2</span> Вычет за покупку квартиры (имущественный)</div>
+        <div class="checklist" id="propertyChecklist">
+            <div class="check-item required">
+                <input type="checkbox" id="prop1" data-group="property" data-required="true">
+                <label for="prop1">Договор купли-продажи квартиры (копия) <span class="badge required">обязательно</span>
+                    <span class="note">Или договор участия в долевом строительстве (ДДУ), если покупали на этапе стройки.</span>
+                </label>
+            </div>
+            <div class="check-item required">
+                <input type="checkbox" id="prop2" data-group="property" data-required="true">
+                <label for="prop2">Выписка из ЕГРН / документ о регистрации права <span class="badge required">обязательно</span>
+                    <span class="note">Подтверждает, что квартира действительно ваша. С 2024 года часто приходит автоматически, но лучше иметь.</span>
+                </label>
+            </div>
+            <div class="check-item required">
+                <input type="checkbox" id="prop3" data-group="property" data-required="true">
+                <label for="prop3">Платёжные документы (расписка, чеки, банковская выписка) <span class="badge required">обязательно</span>
+                    <span class="note">Подтверждают, что вы реально заплатили деньги продавцу.</span>
+                </label>
+            </div>
+            <div class="check-item optional">
+                <input type="checkbox" id="prop4" data-group="property" data-required="false">
+                <label for="prop4">Кредитный договор / ипотека (если покупали в ипотеку) <span class="badge optional">если ипотека</span>
+                    <span class="note">Нужен для вычета по процентам. Лимит по процентам — 3 млн ₽ (вернуть до 390 тыс. ₽).</span>
+                </label>
+            </div>
+            <div class="check-item optional">
+                <input type="checkbox" id="prop5" data-group="property" data-required="false">
+                <label for="prop5">Справка из банка об уплаченных процентах <span class="badge optional">если ипотека</span>
+                    <span class="note">Для вычета по процентам. Если ипотеки нет — не нужно.</span>
+                </label>
+            </div>
+            <div class="check-item optional">
+                <input type="checkbox" id="prop6" data-group="property" data-required="false">
+                <label for="prop6">Соглашение о распределении вычета между супругами <span class="badge optional">если совместная собственность</span>
+                    <span class="note">Подаётся, если квартира куплена в брак и вы хотите распределить вычет.</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопки -->
+    <div class="btn-group">
+        <button class="btn btn-primary" id="checkBtn">✅ Проверить комплектность</button>
+        <button class="btn" id="resetBtn">Сбросить всё</button>
+    </div>
+
+    <!-- Результат -->
+    <div class="result-box" id="resultBox">
+        <div class="result-title">📋 Результат проверки</div>
+        <div class="result-content" id="resultContent">Нажмите «Проверить», чтобы увидеть, всё ли у вас есть.</div>
+    </div>
+
+    <!-- Инструкция -->
+    <div class="instruction">
+        <h3>📌 Куда и с чем идти / отправлять</h3>
+        <ul>
+            <li><strong>Самый удобный способ — Личный кабинет на сайте ФНС (nalog.gov.ru) или Госуслуги.</strong> Там можно заполнить декларацию 3-НДФЛ онлайн, прикрепить сканы/фото документов и отправить без визита в инспекцию [citation:3][citation:4].</li>
+            <li><strong>Если хотите лично:</strong> можно прийти в налоговую инспекцию по месту жительства или в МФЦ («Мои документы») — там принимают декларации на бумаге [citation:4][citation:5].</li>
+            <li><strong>Что взять с собой (для личной подачи):</strong> паспорт, заполненную декларацию 3-НДФЛ (можно подготовить заранее), оригиналы и копии всех документов из чек-листа выше. Для вычета за лечение — справку об оплате; для квартиры — договор, выписку ЕГРН, платёжки [citation:7][citation:10].</li>
+            <li><strong>Сроки:</strong> декларацию за лечение можно подать за 2023, 2024 и 2025 годы (в 2026 году). За квартиру — можно за любые 3 предыдущих года, остаток переносится [citation:3].</li>
+            <li><strong>Проверка и возврат:</strong> камеральная проверка обычно до 3 месяцев, затем деньги приходят на указанный счёт. Если подаёте через ЛК — статус можно отслеживать онлайн [citation:3].</li>
+        </ul>
+    </div>
+
+    <div class="footnote">
+        ⚠️ Это учебная форма-памятка. Официальные требования могут меняться — сверяйтесь с сайтом ФНС или консультантом в налоговой.
+    </div>
+</div>
+
+<script>
+    (function() {
+        const checkBtn = document.getElementById('checkBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const resultContent = document.getElementById('resultContent');
+        const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+
+        // Сброс
+        resetBtn.addEventListener('click', function() {
+            allCheckboxes.forEach(cb => {
+                cb.checked = false;
+                const parent = cb.closest('.check-item');
+                if (parent) parent.classList.remove('highlight-missing', 'highlight-ok');
+            });
+            resultContent.innerHTML = 'Нажмите «Проверить», чтобы увидеть, всё ли у вас есть.';
+        });
+
+        // Проверка
+        checkBtn.addEventListener('click', function() {
+            const groups = {
+                medical: { name: 'Лечение зубов', required: [], optional: [], missing: [] },
+                property: { name: 'Покупка квартиры', required: [], optional: [], missing: [] }
+            };
+
+            // Собираем данные
+            allCheckboxes.forEach(cb => {
+                const group = cb.dataset.group;
+                const required = cb.dataset.required === 'true';
+                const label = cb.closest('.check-item').querySelector('label').innerText.split('\n')[0].trim();
+                const parent = cb.closest('.check-item');
+                
+                if (group && groups[group]) {
+                    if (required) {
+                        groups[group].required.push({ label, checked: cb.checked, cb, parent });
+                        if (!cb.checked) groups[group].missing.push({ label, type: 'required' });
+                    } else {
+                        groups[group].optional.push({ label, checked: cb.checked, cb, parent });
+                    }
+                }
+
+                // Подсветка
+                if (parent) {
+                    parent.classList.remove('highlight-missing', 'highlight-ok');
+                    if (required && !cb.checked) {
+                        parent.classList.add('highlight-missing');
+                    } else if (cb.checked) {
+                        parent.classList.add('highlight-ok');
+                    }
+                }
+            });
+
+            // Формируем отчёт
+            let html = '';
+            let allOk = true;
+
+            // Лечение
+            const med = groups.medical;
+            const medRequiredMissing = med.required.filter(r => !r.checked);
+            if (medRequiredMissing.length === 0) {
+                html += `<p><span class="success-text">✅ Лечение зубов: обязательные документы на месте.</span>`;
+                if (med.optional.some(o => !o.checked)) {
+                    html += ` <span class="warn-text">(некоторые необязательные пункты не отмечены — на ваше усмотрение.)</span>`;
+                }
+                html += `</p>`;
+            } else {
+                allOk = false;
+                html += `<p><span class="error-text">❌ Лечение зубов: не хватает обязательного(ых) документа(ов):</span></p><ul>`;
+                medRequiredMissing.forEach(r => {
+                    html += `<li>${r.label}</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // Квартира
+            const prop = groups.property;
+            const propRequiredMissing = prop.required.filter(r => !r.checked);
+            if (propRequiredMissing.length === 0) {
+                html += `<p><span class="success-text">✅ Покупка квартиры: обязательные документы на месте.</span>`;
+                if (prop.optional.some(o => !o.checked)) {
+                    html += ` <span class="warn-text">(проверьте необязательные пункты — например, для ипотеки.)</span>`;
+                }
+                html += `</p>`;
+            } else {
+                allOk = false;
+                html += `<p><span class="error-text">❌ Покупка квартиры: не хватает обязательного(ых) документа(ов):</span></p><ul>`;
+                propRequiredMissing.forEach(r => {
+                    html += `<li>${r.label}</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // Итог
+            if (allOk && medRequiredMissing.length === 0 && propRequiredMissing.length === 0) {
+                html += `<p style="margin-top:12px; font-weight:600; color:#15803d;">🎉 По обязательным пунктам всё собрано. Можно подавать через Личный кабинет ФНС или идти в налоговую/МФЦ.</p>`;
+            } else {
+                html += `<p style="margin-top:12px; color:#b45309;">⚠️ Дособерите отмеченные красным документы. Если какой-то пункт вызывает сомнения — уточните в клинике или налоговой.</p>`;
+            }
+
+            resultContent.innerHTML = html;
+        });
+    })();
+</script>
+</body>
+</html>
